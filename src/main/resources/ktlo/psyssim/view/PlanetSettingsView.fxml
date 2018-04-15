@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+
+<ScrollPane stylesheets="@../content/styles.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <content>
+        <VBox alignment="TOP_CENTER" spacing="5.0">
+            <children>
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+               <children>
+                  <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#closeSettings" styleClass="close-button" text="✖" />
+                      <Label text="%planetSettings" />
+               </children>
+            </HBox>
+                <TextField fx:id="nameField" onAction="#onNewName" promptText="Planet Name" />
+                <ImageView fx:id="pictureView" fitHeight="150.0" fitWidth="150.0" onMouseClicked="#onNewImage" pickOnBounds="true" preserveRatio="true" />
+                <Line endX="100.0" startX="-100.0" />
+                <TabPane prefHeight="137.0" prefWidth="202.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab text="%settings.variant1">
+                            <content>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Label" />
+                                        <TextField />
+                                        <Label text="Label" />
+                                        <TextField />
+                                    </children>
+                                </VBox>
+                            </content>
+                            <content>
+                                <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
+                                    <children>
+                                        <Label text="%prompt.epsilon" />
+                                        <TextField fx:id="eField" onAction="#onNewE" promptText="%prompt.epsilon" />
+                                        <Label text="%prompt.focus" />
+                                        <TextField fx:id="cField" onAction="#onNewC" promptText="%prompt.focus" />
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+                        <Tab text="%settings.variant2">
+                            <content>
+                                <VBox prefHeight="95.0" prefWidth="202.0" spacing="5.0">
+                                    <children>
+                                        <Label text="%prompt.a" />
+                                        <TextField fx:id="aField" onAction="#onNewAB" promptText="%prompt.a" />
+                                        <Label text="%prompt.b" />
+                                        <TextField fx:id="bField" onAction="#onNewAB" promptText="%prompt.b" />
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+                <Line endX="100.0" startX="-100.0" />
+                <Label text="%settings.angle" />
+                <TextField fx:id="angleField" onAction="#onNewAngle" />
+                <Label text="%settings.mass" />
+                <TextField fx:id="massField" onAction="#onNewMass" />
+                <Label text="%settings.w" />
+                <TextField fx:id="wField" onAction="#onNewW" />
+            <Line endX="100.0" startX="-100.0" />
+            <Button maxWidth="-Infinity" mnemonicParsing="false" onAction="#newChildPlanet" text="%newPlanet" />
+            <Button fx:id="removePlanetButton" layoutX="58.0" layoutY="538.0" maxWidth="-Infinity" mnemonicParsing="false" onAction="#removePlanet" text="%removePlanet" />
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

@@ -1,0 +1,51 @@
+
+
+.buttons-pane {
+    -fx-background-color: rgb(28, 24, 63);
+    -fx-opacity: 0.9;
+}
+
+.background-pane {
+    -fx-background-image: url(../content/background.jpg);
+    -fx-background-size: 100%;
+    -fx-background-repeat: no-repeat
+}
+
+.start-button {
+    -fx-background-color: rgb(25, 68, 89);
+    -fx-background-radius: 10;
+    -fx-text-fill: rgb(229, 230, 197);
+    -fx-border-color: rgb(25, 68, 89) rgb(25, 68, 89) rgb(235, 243, 123) rgb(25, 68, 89);
+    -fx-border-radius: 10;
+}
+
+.start-button:hover, .close-button:hover {
+    -fx-background-color: rgb(65, 174, 228);
+    -fx-border-color: rgb(65, 174, 228) rgb(65, 174, 228) rgb(235, 243, 123) rgb(65, 174, 228);
+}
+
+.start-button:pressed, .close-button:pressed, .start-button:checked {
+    -fx-background-color: rgb(193, 228, 65);
+    -fx-border-color: rgb(193, 228, 65) rgb(193, 228, 65) rgb(65, 174, 228) rgb(193, 228, 65);
+}
+
+.load-list {
+    -fx-background-color: darkcyan
+}
+
+.space {
+    -fx-background-image: url(../content/stars.jpg);
+}
+
+.label-big {
+    -fx-font-size: large;
+    -fx-text-fill: white;
+}
+
+.close-button {
+    -fx-background-color: firebrick;
+    -fx-background-radius: 10;
+    -fx-text-fill: rgb(229, 230, 197);
+    -fx-border-color: rgb(25, 68, 89) rgb(25, 68, 89) rgb(235, 243, 123) rgb(25, 68, 89);
+    -fx-border-radius: 10;
+}
