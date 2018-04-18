@@ -11,6 +11,7 @@ class PSSettings: JsonModel {
         val empty = PSSettings().apply {
             star {
                 mass = 10.0
+                color("#ffffff")
             }
         }
     }

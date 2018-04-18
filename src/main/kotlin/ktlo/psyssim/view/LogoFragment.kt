@@ -3,21 +3,14 @@ package ktlo.psyssim.view
 import javafx.animation.Interpolator
 import javafx.animation.PathTransition
 import javafx.animation.Timeline
-import javafx.application.Application
 import javafx.geometry.Pos
-import javafx.scene.image.Image
-import javafx.scene.layout.AnchorPane
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
-import javafx.util.Duration
-import ktlo.psyssim.controller.LogoController
-import ktlo.psyssim.model.KeplerInterpolator
+import ktlo.psyssim.model.SolarSystem
 import tornadofx.*
-import java.net.URI
 
-class LogoFragment : Fragment("Logo Animation") {
-
-    private val controller: LogoController by inject()
+class LogoFragment : Fragment() {
 
     override val root = stackpane {
 
@@ -27,33 +20,45 @@ class LogoFragment : Fragment("Logo Animation") {
         val halfHeight = prefHeight / 2
         val halfWidth = prefWidth / 2
 
-        style {
-            alignment = Pos.CENTER
-
-        }
+        alignment = Pos.CENTER
 
         circle(halfWidth, halfHeight, 50) {
-            fill = ImagePattern(Image("/ktlo/psyssim/content/sun.png"))
+            fill = ImagePattern(SolarSystem.Sun.image)
             println()
         }
 
-        val pathCircle = controller.createEllipsePath(halfWidth, halfHeight, 100.0, 100.0, .0)
-        add(pathCircle)
+        val orbit = circlePath(halfWidth, halfHeight, 100.0)
 
         val planet = circle(halfWidth - 100, halfHeight, 20) {
-            fill = ImagePattern(Image("/ktlo/psyssim/content/earth.png"))
+            fill = ImagePattern(SolarSystem.Earth.image)
         }
 
-        val transition = PathTransition().apply {
+        PathTransition().apply {
             duration = 5.seconds
-            path = pathCircle
+            path = orbit
             node = planet
             orientation = PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT
             cycleCount = Timeline.INDEFINITE
             isAutoReverse = false
-            interpolator = /*KeplerInterpolator()*/ Interpolator.LINEAR
+            interpolator = Interpolator.LINEAR
         }.play()
 
+    }
+
+    private fun Pane.circlePath(centerX: Double, centerY: Double, radius: Double) = path {
+        moveTo(centerX - radius, centerY - radius)
+        arcTo {
+            x = centerX - radius + 1
+            y = centerY - radius
+            isSweepFlag = false
+            isLargeArcFlag = true
+            radiusX = radius
+            radiusY = radius
+        }
+        closepath()
+
+        stroke = Color.DARKBLUE
+        strokeDashArray.setAll(5.0, 5.0)
     }
 
 }

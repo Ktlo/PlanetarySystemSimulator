@@ -1,14 +1,13 @@
 package ktlo.psyssim.model
 
-import javafx.beans.property.*
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.scene.Group
 import javafx.scene.shape.Path
 import tornadofx.*
 import javax.json.JsonObject
-import tornadofx.getValue
-import tornadofx.setValue
-import kotlin.reflect.KProperty
 
 class AstronomicalObject: JsonModel {
     val nameProperty = SimpleStringProperty()
@@ -32,7 +31,7 @@ class AstronomicalObject: JsonModel {
     val positionProperty = SuperSimpleDoubleProperty()
     var position by positionProperty
 
-    val pictureProperty = SimpleObjectProperty<PlanetPicture>(PlanetPicture.empty)
+    val pictureProperty = SimpleObjectProperty<PlanetPicture>()
     var picture by pictureProperty
 
     val children = FXCollections.observableArrayList<AstronomicalObject>()
@@ -52,9 +51,9 @@ class AstronomicalObject: JsonModel {
             w = double("w")!!
             position = double("way") ?: .0
             picture = if (contains("picture"))
-                getJsonObject("picture").toModel()
+                PlanetPicture.fromModel(getJsonObject("picture"))
             else
-                PlanetPicture()
+                PlanetPicture.ColorPlanetPicture()
             if (contains("children"))
                 children.setAll(getJsonArray("children").toModel())
             children.forEach { it.parent = this@AstronomicalObject }
@@ -82,8 +81,16 @@ class AstronomicalObject: JsonModel {
         return planet
     }
 
+    fun picture(resource: SolarSystem) {
+        picture = PlanetPicture.ImagePlanetPicture(resource)
+    }
+
+    fun color(value: String) {
+        picture = PlanetPicture.ColorPlanetPicture().apply { color = value }
+    }
+
     fun picture(imageFile: String) {
-        picture = PlanetPicture().apply { path = imageFile }
+        picture = PlanetPicture.ImagePlanetPicture().apply { uri = imageFile }
     }
 
 }

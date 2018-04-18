@@ -5,17 +5,15 @@ import javafx.beans.property.StringProperty
 import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextField
-import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import ktlo.psyssim.UIMethod
 import ktlo.psyssim.controller.MainController
 import ktlo.psyssim.model.AstronomicalObject
-import ktlo.psyssim.model.PlanetPicture
+import ktlo.psyssim.model.SolarSystem
 import tornadofx.*
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.sqrt
 
-@Suppress("unused")
 class PlanetSettingsView : View() {
     override val root: ScrollPane by fxml()
 
@@ -32,21 +30,13 @@ class PlanetSettingsView : View() {
     private val wField: TextField by fxid()
     private val removePlanetButton: Button by fxid()
 
-    var selectedPlanet: AstronomicalObject? = null
+    private var selectedPlanet: AstronomicalObject? = null
 
     fun selectPlanet(planet: AstronomicalObject) {
         selectedPlanet = planet
         with (planet) {
             nameField.text = name
-            with(picture) {
-                if (path.isNullOrEmpty()) {
-                    pictureView.style {
-                        backgroundColor += picture.image
-                    }
-                }
-                else
-                    pictureView.image = Image(path)
-            }
+            pictureView.image = picture.image
             eField.text = e.toString()
             cField.text = focus.toString()
             updateAB()
@@ -64,10 +54,12 @@ class PlanetSettingsView : View() {
         }
     }
 
+    @UIMethod
     fun onNewName() {
         selectedPlanet!!.name = nameField.text
     }
 
+    @UIMethod
     fun onNewImage() = controller.imageLoader(selectedPlanet!!)
 
     private fun SimpleDoubleProperty.update(
@@ -97,6 +89,7 @@ class PlanetSettingsView : View() {
         bField.text = b.toString()
     }
 
+    @UIMethod
     fun onNewE() {
         val selected = selectedPlanet!!
         val result = selected.eProperty.update(eField.textProperty()) {
@@ -106,12 +99,14 @@ class PlanetSettingsView : View() {
             updateAB()
     }
 
+    @UIMethod
     fun onNewC() {
         selectedPlanet!!.focusProperty.update(cField.textProperty()) {
             it > .001
         }
     }
 
+    @UIMethod
     fun onNewAB() {
         try {
             val a = aField.text.toDouble()
@@ -135,41 +130,47 @@ class PlanetSettingsView : View() {
         }
     }
 
+    @UIMethod
     fun onNewAngle() {
         selectedPlanet!!.angleProperty.update(angleField.textProperty()) {
             it in -PI/2 + 0.000001 .. PI/2 - 0.000001
         }
     }
 
+    @UIMethod
     fun onNewMass() {
         selectedPlanet!!.massProperty.update(massField.textProperty()) {
             it > .0
         }
     }
 
+    @UIMethod
     fun onNewW() {
         selectedPlanet!!.wProperty.update(wField.textProperty()) {
             it >= .0
         }
     }
 
+    @UIMethod
     fun newChildPlanet() {
         val star = selectedPlanet!!
         val planet = star.planet {
             mass = star.mass * 0.6
             e = 0.4
             focus = 40.0
-            picture("/ktlo/psyssim/content/planet.png")
+            picture(SolarSystem.Planet)
         }
         selectPlanet(planet)
     }
 
+    @UIMethod
     fun removePlanet() {
         val planet = selectedPlanet!!
         planet.parent!!.children.remove(planet)
         closeSettings()
     }
 
+    @UIMethod
     fun closeSettings() {
         controller.mainView.graphicalLook.left = null
     }

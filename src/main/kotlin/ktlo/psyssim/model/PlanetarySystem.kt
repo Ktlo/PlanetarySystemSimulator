@@ -32,14 +32,6 @@ class PlanetarySystem: Fragment() {
         onPause.forEach { it(value) }
     }
 
-    fun pause() {
-        onPause.forEach { it(true) }
-    }
-
-    fun play() {
-        onPause.forEach { it(false) }
-    }
-
     lateinit var onPlanetSelection: (AstronomicalObject) -> Unit
 
     fun onSelection(action: (AstronomicalObject) -> Unit) {
@@ -55,8 +47,10 @@ class PlanetarySystem: Fragment() {
     get() = model!!
     set(value) {
         val oldModel = model
-        if (oldModel != null) {
-            oldModel.associatedGroup.removeFromParent()
+        if (oldModel === value)
+            return
+        if (oldModel !== null) {
+            oldModel.associatedGroup.children.clear()
             onJump.clear()
             onPause.clear()
         }
@@ -77,6 +71,7 @@ class PlanetarySystem: Fragment() {
         planetModel.associatedOrbit = orbit
 
         val planet = group {
+            this.sceneToLocal(.0, .0)
             buildSystem(this, planetModel)
             isFocusTraversable = true
         }
@@ -154,31 +149,22 @@ class PlanetarySystem: Fragment() {
                     for (each in it.removed) {
                         if (each === planetModel) {
                             frequencyProperty.removeListener(frequencyListener)
-                            onJump -= ::whenJump
-                            onPause -= ::whenPause
+                            //if (children.isEmpty()) {
+                            //    onJump -= ::whenJump
+                            //    onPause -= ::whenPause
+                            //}
                         }
                     }
                 }
             }
-            /*
-            positionProperty.addListener { _->
-                with(transition) {
-                    stop()
-                    val time = planetModel.position
-                    interpolator = KeplerInterpolator(v, planetModel.positionProperty)
-                    playFrom((time * duration.toMillis()).millis)
-                }
-            }
-            */
         }
     }
 
     private fun buildSystem(parent: Group, model: AstronomicalObject) {
         model.associatedGroup = parent
         with (parent) {
-
             val star = circle(0, 0, model.mass) {
-                fill = model.picture.image
+                fill = model.picture.fill
                 setOnMouseClicked {
                     onPlanetSelection(model)
                 }
@@ -195,16 +181,17 @@ class PlanetarySystem: Fragment() {
             model.massProperty.addListener { _ ->
                 star.radius = model.mass
             }
-            model.picture.imageProperty.addListener { _ ->
-                star.fill = model.picture.image
+            model.pictureProperty.addListener { _ ->
+                star.fill = model.picture.fill
             }
             model.wProperty.addListener { _ ->
                 t.stop()
-                t.keyFrames.removeAll()
-                t.keyframe((2*PI/model.w).seconds) {
-                    keyvalue(star.rotateProperty(), 360)
+                t = timeline {
+                    keyframe((2*PI/model.w).seconds) {
+                        keyvalue(star.rotateProperty(), 360)
+                    }
+                    cycleCount = Timeline.INDEFINITE
                 }
-                t.playFromStart()
             }
             model.children.addListener {
                 it: ListChangeListener.Change<out AstronomicalObject> ->

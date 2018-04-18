@@ -2,6 +2,7 @@ package ktlo.psyssim.view
 
 import javafx.scene.control.*
 import javafx.scene.layout.Pane
+import ktlo.psyssim.UIMethod
 import ktlo.psyssim.controller.MainController
 import tornadofx.*
 import java.io.File
@@ -33,6 +34,7 @@ class LoadPSView: View() {
         }
     }
 
+    @UIMethod
     fun delete() {
         val result = Alert(Alert.AlertType.WARNING, messages["removeConfirmation"], ButtonType.YES, ButtonType.NO)
                 .showAndWait()
@@ -45,15 +47,22 @@ class LoadPSView: View() {
         }
     }
 
+    @UIMethod
     fun load() {
         val selected = psList.selectedItem
         if (selected != null) {
             controller.load(selected)
+            with(primaryStage) {
+                width = 850.0
+                height = 500.0
+                isResizable = true
+            }
             replaceWith(MainView::class, ViewTransition.Fade(1.seconds))
         }
 
     }
 
+    @UIMethod
     fun cancel() {
         replaceWith(StartMenuView::class, ViewTransition.Fade(1.seconds))
     }

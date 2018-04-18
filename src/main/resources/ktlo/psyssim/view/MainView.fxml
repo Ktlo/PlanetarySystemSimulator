@@ -7,11 +7,8 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Slider?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
@@ -19,46 +16,33 @@
 
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="850.0" stylesheets="@../content/styles.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-        <tabs>
-          <Tab text="%tab1">
-            <content>
-                  <BorderPane fx:id="graphicalLook">
-                     <center>
-                        <StackPane fx:id="planetarySystemPane" onMouseClicked="#hideSettings" styleClass="space" />
-                     </center>
-                     <bottom>
-                        <HBox alignment="TOP_RIGHT" prefWidth="850.0" spacing="5.0" styleClass="buttons-pane" BorderPane.alignment="CENTER">
-                           <children>
-                              <ToggleButton fx:id="pauseToggle" mnemonicParsing="false" onAction="#pause" styleClass="start-button" text="%pauseSwitch" />
-                              <Line endY="15.0" layoutX="677.0" layoutY="21.0" startY="-10.0" />
-                              <Label styleClass="label-big" text="%jumpLabel" />
-                              <TextField fx:id="jumpField" text="0.0" />
-                              <Button mnemonicParsing="false" onAction="#jump" styleClass="start-button" text="%jumpButton" />
-                              <Line endY="15.0" startY="-10.0" />
-                              <Label styleClass="label-big" text="%frequency" />
-                              <Slider fx:id="frequencySlider" blockIncrement="1.0" majorTickUnit="50.0" max="200.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" value="20.0" />
-                           </children>
-                           <padding>
-                              <Insets top="5.0" />
-                           </padding>
-                        </HBox>
-                     </bottom>
-                  </BorderPane>
-            </content>
-          </Tab>
-          <Tab text="%tab2">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-            </content>
-          </Tab>
-        </tabs>
-      </TabPane>
+      <BorderPane fx:id="graphicalLook">
+         <center>
+            <StackPane fx:id="planetarySystemPane" onMouseClicked="#hideSettings" styleClass="space" />
+         </center>
+         <bottom>
+            <HBox alignment="TOP_RIGHT" prefWidth="850.0" spacing="5.0" styleClass="buttons-pane" BorderPane.alignment="CENTER">
+               <children>
+                  <ToggleButton fx:id="pauseToggle" mnemonicParsing="false" onAction="#pause" styleClass="start-button" text="%pauseSwitch" />
+                  <Line endY="15.0" layoutX="677.0" layoutY="21.0" startY="-10.0" />
+                  <Label styleClass="label-big" text="%jumpLabel" />
+                  <TextField fx:id="jumpField" text="0.0" />
+                  <Button mnemonicParsing="false" onAction="#jump" styleClass="start-button" text="%jumpButton" />
+                  <Line endY="15.0" startY="-10.0" />
+                  <Label styleClass="label-big" text="%frequency" />
+                  <Slider fx:id="frequencySlider" blockIncrement="1.0" majorTickUnit="50.0" max="200.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" value="20.0" />
+               </children>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </HBox>
+         </bottom>
+      </BorderPane>
    </center>
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="%bar.file">
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#save" text="%bar.save" />
                   <MenuItem mnemonicParsing="false" onAction="#saveAs" text="%bar.saveAs" />

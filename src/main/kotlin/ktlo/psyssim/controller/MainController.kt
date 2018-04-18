@@ -8,6 +8,8 @@ import javafx.scene.image.ImageView
 import javafx.stage.FileChooser
 import ktlo.psyssim.model.AstronomicalObject
 import ktlo.psyssim.model.PSSettings
+import ktlo.psyssim.model.PlanetPicture
+import ktlo.psyssim.model.SolarSystem
 import ktlo.psyssim.view.MainView
 import ktlo.psyssim.view.PlanetSettingsView
 import tornadofx.*
@@ -36,14 +38,12 @@ class MainController: Controller() {
 
     fun load(name: String) {
         val file = File(savesDirectory, "$name.json")
-        settings = loadJsonModel(file.inputStream())
-        mainView.planetarySystem.star = settings.star
+        load(loadJsonModel<PSSettings>(file.inputStream()))
     }
 
     fun load(model: PSSettings) {
-        if (model == settings)
-            return
         settings = model
+        mainView.title = "Planetary System Simulator - ${model.name}"
         mainView.planetarySystem.star = model.star
     }
 
@@ -62,7 +62,7 @@ class MainController: Controller() {
             val extension = FileChooser.ExtensionFilter("Image", "*.jpg", "*.png")
             extensionFilters.addAll(extension)
             selectedExtensionFilter = extension
-            title = mainView.messages["imageFileDialog"]
+            title = messages["imageFileDialog"]
         }
         val selected = chooser.showOpenDialog(mainView.currentWindow)
         if (selected != null) {
@@ -73,12 +73,13 @@ class MainController: Controller() {
             with (planetSettingsView.pictureView) {
                 image = picture
             }
-            with (planet.picture) {
-                val p = path
-                if (p != null && p.startsWith("file:${contentDirectory.absolutePath}"))
+            val oldPicture = planet.picture
+            if (oldPicture is PlanetPicture.ImagePlanetPicture) {
+                val p = oldPicture.uri
+                if (p.startsWith("file:${contentDirectory.absolutePath}"))
                     File(p.substring(5)).delete()
-                planet.picture.path = uri
             }
+            planet.picture(uri)
         }
     }
 
@@ -86,7 +87,7 @@ class MainController: Controller() {
         while (true) {
             val titleText = messages["new.title"]
             val dialog = TextInputDialog(titleText).apply {
-                graphic = ImageView(Image("/ktlo/psyssim/content/sun.png")).apply {
+                graphic = ImageView(Image(SolarSystem.Sun.uri)).apply {
                     fitWidth = 55.0
                     fitHeight = 55.0
                 }
@@ -109,7 +110,12 @@ class MainController: Controller() {
                 template.name = filename
                 template.timestamp = LocalDateTime.now()
                 load(template)
-                view?.replaceWith(MainView::class, ViewTransition.Fade(1.seconds))
+                if (view != null) {
+                    primaryStage.width = 850.0
+                    primaryStage.height = 500.0
+                    primaryStage.isResizable = true
+                    view.replaceWith(MainView::class, ViewTransition.Fade(1.seconds))
+                }
                 break
             }
             else
