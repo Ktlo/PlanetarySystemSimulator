@@ -1,5 +1,6 @@
 package ktlo.psyssim.view
 
+import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
 import ktlo.psyssim.UIMethod
@@ -45,6 +46,7 @@ class StartMenuView: View("Planetary System Simulator") {
     }
 
     init {
+        primaryStage.icons.add(SolarSystem.Sun.image)
         primaryStage.isResizable = false
         logoAnimation += logoView
     }

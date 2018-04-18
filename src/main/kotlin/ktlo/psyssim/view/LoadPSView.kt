@@ -7,7 +7,7 @@ import ktlo.psyssim.controller.MainController
 import tornadofx.*
 import java.io.File
 
-class LoadPSView: View() {
+class LoadPSView: View("Planetary System Simulator") {
     private val controller: MainController by inject()
 
     override val root: Pane by fxml()
@@ -37,6 +37,7 @@ class LoadPSView: View() {
     @UIMethod
     fun delete() {
         val result = Alert(Alert.AlertType.WARNING, messages["removeConfirmation"], ButtonType.YES, ButtonType.NO)
+                .apply { headerText = messages["removeHeader"] }
                 .showAndWait()
         if (result.get() == ButtonType.YES) {
             val selected = psList.selectedItem
