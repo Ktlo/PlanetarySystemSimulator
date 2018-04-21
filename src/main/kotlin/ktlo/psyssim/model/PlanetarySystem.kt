@@ -1,5 +1,6 @@
 package ktlo.psyssim.model
 
+import javafx.animation.Interpolator
 import javafx.animation.PathTransition
 import javafx.animation.Timeline
 import javafx.beans.InvalidationListener
@@ -12,6 +13,7 @@ import javafx.scene.shape.ArcTo
 import javafx.scene.shape.MoveTo
 import tornadofx.*
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 class PlanetarySystem: Fragment() {
@@ -23,12 +25,14 @@ class PlanetarySystem: Fragment() {
 
     private val onJump = mutableListOf<(Double)->Unit>()
     private val onPause = mutableListOf<(Boolean)->Unit>()
+    private var pause: Boolean = false
 
     fun jump(time: Double) {
         onJump.forEach { it(time) }
     }
 
     fun pause(value: Boolean) {
+        pause = value
         onPause.forEach { it(value) }
     }
 
@@ -53,6 +57,7 @@ class PlanetarySystem: Fragment() {
             oldModel.associatedGroup.children.clear()
             onJump.clear()
             onPause.clear()
+            pause = false
         }
         model = value
         buildSystem(root, value)
@@ -86,6 +91,7 @@ class PlanetarySystem: Fragment() {
             isAutoReverse = false
             interpolator = KeplerInterpolator(v, planetModel.positionProperty)
             playFrom((planetModel.position * scale).seconds)
+            if (pause) pause()
         }
 
         fun whenPathChanged(observable: Observable) {
@@ -107,6 +113,7 @@ class PlanetarySystem: Fragment() {
                 duration = (sqrt(v.a*v.a*v.a)/frequency).seconds
                 interpolator = KeplerInterpolator(v, planetModel.positionProperty)
                 playFrom((time * duration.toMillis()).millis)
+                if (pause) pause()
             }
         }
 
@@ -118,6 +125,7 @@ class PlanetarySystem: Fragment() {
                 duration = (sqrt(v.a*v.a*v.a)/frequency).seconds
                 interpolator = KeplerInterpolator(v, planetModel.positionProperty)
                 playFrom((time * duration.toMillis()).millis)
+                if (pause) pause()
             }
         }
         frequencyProperty.addListener(frequencyListener)
@@ -133,6 +141,7 @@ class PlanetarySystem: Fragment() {
                     val time = if (cycles < 0) 1.0 - (-cycles % 1.0) else cycles % 1.0
                     interpolator = KeplerInterpolator(v, planetModel.positionProperty)
                     playFrom((time * duration.toMillis()).millis)
+                    if(pause) pause()
                 }
             }
             fun whenPause(it: Boolean) {
@@ -171,10 +180,18 @@ class PlanetarySystem: Fragment() {
             }
 
             var t = timeline {
-                keyframe((2*PI/model.w).seconds) {
-                    keyvalue(star.rotateProperty(), 360)
+                val w = model.w
+                keyframe((2*PI/abs(w)).seconds) {
+                    keyvalue(star.rotateProperty(), 360,
+                            if (w < .0) ReverseInterpolator
+                            else Interpolator.LINEAR)
                 }
                 cycleCount = Timeline.INDEFINITE
+            }
+
+            onPause += {
+                if (it) t.pause()
+                else t.play()
             }
 
             // Set callbacks for the planet or star
@@ -186,12 +203,18 @@ class PlanetarySystem: Fragment() {
             }
             model.wProperty.addListener { _ ->
                 t.stop()
-                t = timeline {
-                    keyframe((2*PI/model.w).seconds) {
-                        keyvalue(star.rotateProperty(), 360)
+                val w = model.w
+                if (w != .0)
+                    t = timeline {
+                        keyframe((2*PI/abs(w)).seconds) {
+                            star.rotate = .0
+                            keyvalue(star.rotateProperty(), 360,
+                                    if (w < .0) ReverseInterpolator
+                                    else Interpolator.LINEAR)
+                        }
+                        cycleCount = Timeline.INDEFINITE
+                        if (!pause) play()
                     }
-                    cycleCount = Timeline.INDEFINITE
-                }
             }
             model.children.addListener {
                 it: ListChangeListener.Change<out AstronomicalObject> ->

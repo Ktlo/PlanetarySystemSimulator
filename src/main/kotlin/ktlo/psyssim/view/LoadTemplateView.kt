@@ -22,13 +22,22 @@ class LoadTemplateView: Fragment() {
 
     override val root = vbox(8, Pos.TOP_CENTER) {
 
-        comboBox = combobox(selectedProperty, Template.values().toList())
+        style {
+            padding = box(5.px)
+        }
+
+        comboBox = combobox(selectedProperty, Template.values().toList()) {
+            maxWidth = Double.POSITIVE_INFINITY
+            prefWidth = -1.0
+        }
 
         descriptionArea = textarea(selected.description) {
             isEditable = false
+            isWrapText = true
+            prefWidth = 225.0
         }
 
-        hbox {
+        hbox(5, Pos.CENTER) {
             button(messages["select"]) {
                 action {
                     result = true
@@ -46,6 +55,7 @@ class LoadTemplateView: Fragment() {
     }
 
     init {
+        title = controller.programName
         selectedProperty.addListener { _ ->
             descriptionArea.text = selected.description
         }

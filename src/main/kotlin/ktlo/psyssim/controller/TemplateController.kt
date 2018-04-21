@@ -149,4 +149,73 @@ class TemplateController: Controller() {
         }
     }
 
+    fun outer() = PSSettings().apply {
+        star {
+            val scaleMass = 1.0
+            val scaleFocus = 10.0
+
+            name("sun-star")
+            picture(SolarSystem.Sun)
+            mass = 12.0
+
+            planet {
+                name("jupiter-planet")
+                picture(SolarSystem.Jupiter)
+                mass = 11.209 * scaleMass
+                e = 0.0483
+                focus = 5.20 * scaleFocus * e
+            }
+
+            planet {
+                name("saturn-planet")
+                picture(SolarSystem.Saturn)
+                mass = 9.44 * scaleMass
+                e = 0.056
+                focus = 9.54 * scaleFocus * e
+            }
+
+            planet {
+                name("uranus-planet")
+                picture(SolarSystem.Uranus)
+                mass = 4.007 * scaleMass
+                e = 0.0461
+                focus = 19.18 * scaleFocus * e
+            }
+
+            planet {
+                name("neptune-planet")
+                picture(SolarSystem.Neptune)
+                mass = 3.883 * scaleMass
+                e = 0.0097
+                focus = 30.06 * scaleFocus * e
+            }
+        }
+    }
+
+    fun comets() = PSSettings().apply {
+        star {
+            name("sun-star")
+            picture(SolarSystem.Sun)
+            mass = 50.0
+
+            planet {
+                name("comet")
+                picture(SolarSystem.Planet)
+                mass = 20.0
+                angle = 0.2
+                e = .8
+                focus = 100.0
+            }
+
+            planet {
+                name("comet")
+                picture(SolarSystem.Pluto)
+                mass = 15.0
+                angle = 0.5
+                e = .85
+                focus = 120.0
+            }
+        }
+    }
+
 }

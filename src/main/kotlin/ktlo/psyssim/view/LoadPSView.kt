@@ -43,21 +43,12 @@ class LoadPSView: View() {
             if (it == ButtonType.YES) {
                 controller.delete(selected)
                 psList.items.remove(selected)
-                deleteButton.isDisable = true
-                loadButton.isDisable = true
+                if (psList.items.isEmpty()) {
+                    deleteButton.isDisable = true
+                    loadButton.isDisable = true
+                }
             }
         }
-        /*
-        val result = Alert(Alert.AlertType.WARNING, messages["removeConfirmation"], ButtonType.YES, ButtonType.NO)
-                .apply { headerText = messages["removeHeader"] }
-                .showAndWait()
-        if (result.get() == ButtonType.YES) {
-            controller.delete(selected)
-            psList.items.remove(selected)
-            deleteButton.isDisable = true
-            loadButton.isDisable = true
-        }
-        */
     }
 
     @UIMethod

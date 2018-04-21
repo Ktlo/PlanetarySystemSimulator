@@ -12,8 +12,10 @@ import javafx.stage.StageStyle
 import ktlo.psyssim.UIMethod
 import ktlo.psyssim.controller.MainController
 import ktlo.psyssim.model.AstronomicalObject
+import ktlo.psyssim.model.PlanetPicture
 import ktlo.psyssim.model.SolarSystem
 import tornadofx.*
+import java.io.File
 import kotlin.math.PI
 import kotlin.math.sqrt
 
@@ -159,7 +161,7 @@ class PlanetSettingsView : View() {
     @UIMethod
     fun onNewW() {
         selectedPlanet!!.wProperty.update(wField.textProperty()) {
-            it >= .0
+            true
         }
     }
 
@@ -179,6 +181,7 @@ class PlanetSettingsView : View() {
     fun removePlanet() {
         val planet = selectedPlanet!!
         planet.parent!!.children.remove(planet)
+        controller.recursivelyDeleteImages(planet)
         closeSettings()
     }
 

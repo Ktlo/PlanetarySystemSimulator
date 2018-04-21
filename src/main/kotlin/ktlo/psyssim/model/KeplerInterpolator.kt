@@ -44,7 +44,7 @@ class KeplerInterpolator(calculator: Calculator, private val position: SuperSimp
         return sum / 2 * dt
     }
 
-    val way: Double
+    private val way: Double
     get() {
         val r = lastR / max + startValue
         return if (r > 1.0) r - 1.0 else r

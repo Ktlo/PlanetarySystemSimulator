@@ -3,22 +3,29 @@ package ktlo.psyssim.model
 import ktlo.psyssim.controller.TemplateController
 import tornadofx.*
 
-enum class Template(name: String, private val message: String) {
-    Inner("template.inner", "description.inner") {
+enum class Template {
+    Inner {
         override val settings: PSSettings
             get() = controller.inner()
     },
-    Real("template.real", "description.real") {
+    Outer {
+        override val settings: PSSettings
+            get() = controller.outer()
+    },
+    Real {
         override val settings: PSSettings
             get() = controller.real()
     },
-    ;
+    Comets {
+        override val settings: PSSettings
+            get() = controller.comets()
+    };
 
     protected val controller = find(TemplateController::class)
-    private val string = controller.messages[name]
+    private val string = controller.messages["template.$name"]
     override fun toString(): String {
         return string
     }
-    val description get() = controller.messages[message]
+    val description: String get() = controller.messages["description.$name"]
     abstract val settings: PSSettings
 }

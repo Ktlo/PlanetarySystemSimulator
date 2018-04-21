@@ -2,6 +2,7 @@ package ktlo.psyssim.controller
 
 import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
+import javafx.scene.control.TextFormatter
 import javafx.scene.control.TextInputDialog
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -17,10 +18,11 @@ import java.io.File
 import java.io.FileFilter
 import java.time.LocalDateTime
 import java.util.*
+import java.util.function.UnaryOperator
 
 class MainController: Controller() {
     val mainView: MainView by inject()
-    val planetSettingsView: PlanetSettingsView by inject()
+    private val planetSettingsView: PlanetSettingsView by inject()
 
     lateinit var settings: PSSettings
 
@@ -89,20 +91,22 @@ class MainController: Controller() {
         val file = File(savesDirectory, "$name.json")
         val model = loadJsonModel<PSSettings>(file.inputStream())
         recursivelyDeleteImages(model.star)
+        file.delete()
     }
 
-    private fun recursivelyDeleteImages(model: AstronomicalObject) {
+    fun recursivelyDeleteImages(model: AstronomicalObject) {
         val picture = model.picture
         if (picture is PlanetPicture.ImagePlanetPicture) {
             val path = picture.uri
             if (path.startsWith("file:${contentDirectory.absolutePath}"))
                 File(path.substring(5)).delete()
         }
-        model.children.forEach { recursivelyDeleteImages(model) }
+        model.children.forEach { recursivelyDeleteImages(it) }
     }
 
     fun createFromTemplate(template: PSSettings, view: View? = null) {
         while (true) {
+
             val titleText = messages["new.title"]
             val dialog = TextInputDialog(titleText).apply {
                 graphic = ImageView(Image(SolarSystem.Sun.uri)).apply {
@@ -112,14 +116,24 @@ class MainController: Controller() {
                 title = titleText
                 headerText = ""
                 contentText = messages["new.contentText"]
+
+                val filter = UnaryOperator<TextFormatter.Change> {
+                    if (it.isReplaced)
+                        if(it.text.matches(Regex("""[^\w.а-яА-ЯеЁ]""")))
+                            it.text = it.controlText.substring(it.rangeStart, it.rangeEnd)
+                    if (it.isAdded) {
+                        if (it.text.matches(Regex("""[^\w.а-яА-ЯеЁ]"""))) {
+                            it.text = ""
+                        }
+                    }
+                    it
+                }
+                editor.textFormatter = TextFormatter<TextFormatter.Change>(filter)
             }
             val result = dialog.showAndWait()
             if (result.isPresent) {
                 val filename = result.get()
                 if (File(savesDirectory, "$filename.json").exists()) {
-                    //val confirmationResult = alert(Alert.AlertType.CONFIRMATION,
-                    //        messages["warn.headerText"],
-                    //        messages["warn.contentText"])
                     val confirmationResult = Alert(Alert.AlertType.CONFIRMATION).apply {
                         title = titleText
                         headerText = messages["warn.headerText"]

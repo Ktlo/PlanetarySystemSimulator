@@ -19,14 +19,22 @@
     -fx-border-radius: 10;
 }
 
-.start-button:hover, .close-button:hover {
+.start-button:hover, .start-button:hover:selected, .close-button:hover {
     -fx-background-color: rgb(65, 174, 228);
     -fx-border-color: rgb(65, 174, 228) rgb(65, 174, 228) rgb(235, 243, 123) rgb(65, 174, 228);
 }
 
-.start-button:pressed, .close-button:pressed, .start-button:checked {
+.start-button:pressed, .close-button:pressed, .start-button:selected {
     -fx-background-color: rgb(193, 228, 65);
     -fx-border-color: rgb(193, 228, 65) rgb(193, 228, 65) rgb(65, 174, 228) rgb(193, 228, 65);
+}
+
+.start-button:selected {
+    -fx-text-fill: darkslategray 
+}
+
+.start-button:focused {
+    -fx-border-color-buttom: rgb(25, 68, 89) rgb(25, 68, 89) rgb(236, 27, 255) rgb(25, 68, 89);
 }
 
 .load-list {
