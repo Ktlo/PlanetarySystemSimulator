@@ -1,11 +1,14 @@
 package ktlo.psyssim.view
 
+import javafx.beans.InvalidationListener
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.StringProperty
+import javafx.event.EventHandler
 import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextField
 import javafx.scene.image.ImageView
+import javafx.stage.StageStyle
 import ktlo.psyssim.UIMethod
 import ktlo.psyssim.controller.MainController
 import ktlo.psyssim.model.AstronomicalObject
@@ -30,7 +33,7 @@ class PlanetSettingsView : View() {
     private val wField: TextField by fxid()
     private val removePlanetButton: Button by fxid()
 
-    private var selectedPlanet: AstronomicalObject? = null
+    var selectedPlanet: AstronomicalObject? = null
 
     fun selectPlanet(planet: AstronomicalObject) {
         selectedPlanet = planet
@@ -60,7 +63,16 @@ class PlanetSettingsView : View() {
     }
 
     @UIMethod
-    fun onNewImage() = controller.imageLoader(selectedPlanet!!)
+    fun onNewImage() {
+        val lookView = find(PlanetLookView::class)
+        lookView.planet = selectedPlanet!!
+        val listener = InvalidationListener {
+            pictureView.image = lookView.picture.image
+        }
+        lookView.picture.imageProperty().addListener(listener)
+        val stage = lookView.openModal(StageStyle.UTILITY, resizable = false)!!
+        stage.onCloseRequest = EventHandler { lookView.picture.imageProperty().removeListener(listener) }
+    }
 
     private fun SimpleDoubleProperty.update(
             field: StringProperty,

@@ -86,7 +86,7 @@ class AstronomicalObject: JsonModel {
     }
 
     fun color(value: String) {
-        picture = PlanetPicture.ColorPlanetPicture().apply { color = value }
+        picture = PlanetPicture.ColorPlanetPicture().apply { colorString = value }
     }
 
     fun picture(imageFile: String) {

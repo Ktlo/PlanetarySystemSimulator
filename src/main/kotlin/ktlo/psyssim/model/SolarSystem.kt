@@ -1,6 +1,8 @@
 package ktlo.psyssim.model
 
 import javafx.scene.image.Image
+import ktlo.psyssim.controller.TemplateController
+import tornadofx.*
 
 enum class SolarSystem(name: String) {
     Earth("earth-planet"),
@@ -18,6 +20,9 @@ enum class SolarSystem(name: String) {
     Planet("planet");
 
     val uri = "/ktlo/psyssim/content/$name.png"
-    val image: Image by lazy { Image(uri) }
+    private val string = find(TemplateController::class).messages[name]!!
+    val image: Image by lazy { Image(uri, 256.0, 256.0, false, false) }
+
+    override fun toString() = string
 
 }

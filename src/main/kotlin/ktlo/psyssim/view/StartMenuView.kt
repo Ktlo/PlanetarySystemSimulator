@@ -3,6 +3,7 @@ package ktlo.psyssim.view
 import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
+import javafx.stage.StageStyle
 import ktlo.psyssim.UIMethod
 import ktlo.psyssim.controller.MainController
 import ktlo.psyssim.controller.TemplateController
@@ -11,7 +12,7 @@ import ktlo.psyssim.model.SolarSystem
 import tornadofx.*
 import kotlin.math.PI
 
-class StartMenuView: View("Planetary System Simulator") {
+class StartMenuView: View() {
     private val controller: MainController by inject()
     private val template: TemplateController by inject()
     private val loadPSView: LoadPSView by inject()
@@ -41,11 +42,15 @@ class StartMenuView: View("Planetary System Simulator") {
 
     @UIMethod
     fun whenTemplatePS() {
-
-        controller.createFromTemplate(template.inner(), this)
+        val templateView = find(LoadTemplateView::class)
+        templateView.openModal(StageStyle.UTILITY, resizable = false, block = true)
+        if (templateView.result) {
+            controller.createFromTemplate(templateView.selected.settings, this)
+        }
     }
 
     init {
+        title = controller.programName
         primaryStage.icons.add(SolarSystem.Sun.image)
         primaryStage.isResizable = false
         logoAnimation += logoView

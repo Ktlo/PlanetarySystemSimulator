@@ -31,6 +31,8 @@ class MainController: Controller() {
     private val contentDirectory = File(dataDirectory, "content/")
     val savesDirectory = File(dataDirectory, "saves/")
 
+    val programName = messages["program.name"]
+
     init {
         contentDirectory.mkdirs()
         savesDirectory.mkdirs()
@@ -43,7 +45,7 @@ class MainController: Controller() {
 
     fun load(model: PSSettings) {
         settings = model
-        mainView.title = "Planetary System Simulator - ${model.name}"
+        mainView.title = "$programName - ${model.name}"
         mainView.planetarySystem.star = model.star
     }
 
@@ -69,7 +71,7 @@ class MainController: Controller() {
             val imageFile = File(contentDirectory, UUID.randomUUID().toString())
             selected.copyTo(imageFile)
             val uri = "file:" + imageFile.absolutePath
-            val picture = Image(uri)
+            val picture = Image(uri, 256.0, 256.0, false, false)
             with (planetSettingsView.pictureView) {
                 image = picture
             }
@@ -81,6 +83,22 @@ class MainController: Controller() {
             }
             planet.picture(uri)
         }
+    }
+
+    fun delete(name: String) {
+        val file = File(savesDirectory, "$name.json")
+        val model = loadJsonModel<PSSettings>(file.inputStream())
+        recursivelyDeleteImages(model.star)
+    }
+
+    private fun recursivelyDeleteImages(model: AstronomicalObject) {
+        val picture = model.picture
+        if (picture is PlanetPicture.ImagePlanetPicture) {
+            val path = picture.uri
+            if (path.startsWith("file:${contentDirectory.absolutePath}"))
+                File(path.substring(5)).delete()
+        }
+        model.children.forEach { recursivelyDeleteImages(model) }
     }
 
     fun createFromTemplate(template: PSSettings, view: View? = null) {
@@ -99,6 +117,9 @@ class MainController: Controller() {
             if (result.isPresent) {
                 val filename = result.get()
                 if (File(savesDirectory, "$filename.json").exists()) {
+                    //val confirmationResult = alert(Alert.AlertType.CONFIRMATION,
+                    //        messages["warn.headerText"],
+                    //        messages["warn.contentText"])
                     val confirmationResult = Alert(Alert.AlertType.CONFIRMATION).apply {
                         title = titleText
                         headerText = messages["warn.headerText"]

@@ -21,11 +21,13 @@ sealed class PlanetPicture: JsonModel {
         override val image: Image
             get() = picture
 
+        override val color = Color.BLACK!!
+
         var uri: String
         get() = path
         set(value) {
             path = value
-            picture = Image(value)
+            picture = Image(value, 256.0, 256.0, false, false)
             fill = ImagePattern(picture)
         }
 
@@ -57,30 +59,33 @@ sealed class PlanetPicture: JsonModel {
     }
 
     class ColorPlanetPicture: PlanetPicture() {
-        var color: String = "#000000"
-        set(value) {
-            field = value
-            fill = Color.web(color)
-        }
+        var colorString: String = "#000000"
+            set(value) {
+                field = value
+                fill = color
+            }
+
+        override val color
+            get() = Color.web(colorString) ?: Color.BLACK!!
 
         override val image: Image
-        get() {
-            val d = 250.0
-            val center = d/2.0
-            val scaled = (sqrt(2.0) - 1.0) * center
+            get() {
+                val d = 250.0
+                val center = d/2.0
+                val scaled = (sqrt(2.0) - 1.0) * center
 
-            val gc = Canvas(d, d).graphicsContext2D
-            gc.fill = fill
-            gc.fillOval(scaled, scaled, center, center)
-            val result = WritableImage(d.toInt(), d.toInt())
-            gc.drawImage(result, d, d)
-            return result
-        }
+                val gc = Canvas(d, d).graphicsContext2D
+                gc.fill = fill
+                gc.fillOval(scaled, scaled, center, center)
+                val result = WritableImage(d.toInt(), d.toInt())
+                gc.drawImage(result, d, d)
+                return result
+            }
 
         override fun updateModel(json: JsonObject) {
             with (json) {
                 try {
-                    color = string("color")!!
+                    colorString = string("colorString")!!
                 }
                 catch (e: Exception) {
                     fill = Color.BLACK
@@ -91,7 +96,7 @@ sealed class PlanetPicture: JsonModel {
 
         override fun toJSON(json: JsonBuilder) {
             with (json) {
-                add("color", color)
+                add("colorString", colorString)
             }
         }
 
@@ -103,7 +108,7 @@ sealed class PlanetPicture: JsonModel {
             with (json) {
                 when {
                     contains("path") -> toModel<ImagePlanetPicture>()
-                    contains("color") -> toModel<ColorPlanetPicture>()
+                    contains("colorString") -> toModel<ColorPlanetPicture>()
                     else -> ColorPlanetPicture()
                 }
             }
@@ -114,5 +119,6 @@ sealed class PlanetPicture: JsonModel {
     var fill: Paint by fillProperty
 
     abstract val image: Image
+    abstract val color: Color
 
 }
