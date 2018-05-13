@@ -119,10 +119,10 @@ class MainController: Controller() {
 
                 val filter = UnaryOperator<TextFormatter.Change> {
                     if (it.isReplaced)
-                        if(it.text.matches(Regex("""[^\w.а-яА-ЯеЁ]""")))
+                        if(it.text.matches(Regex("""[^\w.а-яА-ЯЁё ]""")))
                             it.text = it.controlText.substring(it.rangeStart, it.rangeEnd)
                     if (it.isAdded) {
-                        if (it.text.matches(Regex("""[^\w.а-яА-ЯеЁ]"""))) {
+                        if (it.text.matches(Regex("""[^\w.а-яА-ЯЁё ]"""))) {
                             it.text = ""
                         }
                     }

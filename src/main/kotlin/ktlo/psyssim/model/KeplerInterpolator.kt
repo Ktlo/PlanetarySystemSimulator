@@ -5,11 +5,12 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sqrt
 
-class KeplerInterpolator(calculator: Calculator, private val position: SuperSimpleDoubleProperty): Interpolator() {
+class KeplerInterpolator(astronomicalObject: AstronomicalObject): Interpolator() {
 
+    private val position = astronomicalObject.positionProperty
     private var lastT = position.value
     private var lastR = integrate(.0, lastT, this::f)
-    private val e = calculator.e
+    private val e = astronomicalObject.e
     private val k1 = 2*e
     private val k2 = e*e
     private var max = integrate(.0, 1.0, this::f)
@@ -17,12 +18,12 @@ class KeplerInterpolator(calculator: Calculator, private val position: SuperSimp
     private val startValue: Double
 
     init {
-        val start = integrate(.0, calculator.beta, this::length)
+        val start = integrate(.0, astronomicalObject.beta, this::length)
         val end = integrate(.0, 2*PI, this::length)
         startValue = 0.75 - start / end
     }
 
-    private fun f(t: Double) = 2 * (sqrt(1 + k1*cos(2*PI*t) + k2))
+    private fun f(t: Double) = (sqrt(1 + k1*cos(2*PI*t) + k2))
     private fun length(x: Double): Double {
         val cosValue = cos(x)
         return sqrt(1 - k2*cosValue*cosValue)

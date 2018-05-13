@@ -8,6 +8,10 @@ import javafx.scene.Group
 import javafx.scene.shape.Path
 import tornadofx.*
 import javax.json.JsonObject
+import kotlin.math.atan
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class AstronomicalObject: JsonModel {
     val nameProperty = SimpleStringProperty()
@@ -40,6 +44,28 @@ class AstronomicalObject: JsonModel {
 
     lateinit var associatedGroup: Group
     var associatedOrbit: Path? = null
+
+    var beta = .0
+    var a = .0
+    var b = .0
+    var x = .0
+    var y = .0
+
+    fun recalculateValues() {
+        a = focus / e
+        b = sqrt(a * a - focus * focus)
+        val sinA = sin(angle)
+        val cosA = cos(angle)
+        val offX = focus * cosA
+        val offY = focus * sinA
+
+        // Holy formulas
+        beta = atan(a/b*sinA/cosA)
+        val sinB = sin(beta)
+        val cosB = cos(beta)
+        x = -(a*sinB*cosA - b*sinA*cosB) - offX
+        y = -(a*sinB*sinA + b*cosB*cosA) - offY
+    }
 
     override fun updateModel(json: JsonObject) {
         with (json) {

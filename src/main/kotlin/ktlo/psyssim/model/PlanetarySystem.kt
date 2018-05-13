@@ -36,7 +36,7 @@ class PlanetarySystem: Fragment() {
         onPause.forEach { it(value) }
     }
 
-    lateinit var onPlanetSelection: (AstronomicalObject) -> Unit
+    private lateinit var onPlanetSelection: (AstronomicalObject) -> Unit
 
     fun onSelection(action: (AstronomicalObject) -> Unit) {
         onPlanetSelection = action
@@ -64,11 +64,12 @@ class PlanetarySystem: Fragment() {
     }
 
     private fun Group.subPlanet(planetModel: AstronomicalObject) {
-        var v = Calculator(planetModel)
+        //var v = Calculator(planetModel)
+        planetModel.recalculateValues()
 
         val orbit = path {
-            moveTo(v.x, v.y)
-            arcTo(v.a, v.b, v.alpha / PI * 180.0, 1 + v.x, v.y, true)
+            moveTo(planetModel.x, planetModel.y)
+            arcTo(planetModel.a, planetModel.b, planetModel.angle / PI * 180.0, 1 + planetModel.x, planetModel.y, true)
             closepath()
             stroke = Color.DODGERBLUE
             strokeDashArray.setAll(5.0, 5.0)
@@ -82,36 +83,38 @@ class PlanetarySystem: Fragment() {
         }
 
         val transition = PathTransition().apply {
-            val scale = sqrt(v.a*v.a*v.a)/frequency
+            val a = planetModel.a
+            val scale = sqrt(a*a*a)/frequency
             duration = scale.seconds
             path = orbit
             node = planet
             orientation = PathTransition.OrientationType.NONE
             cycleCount = Timeline.INDEFINITE
             isAutoReverse = false
-            interpolator = KeplerInterpolator(v, planetModel.positionProperty)
+            interpolator = KeplerInterpolator(planetModel)
             playFrom((planetModel.position * scale).seconds)
             if (pause) pause()
         }
 
         fun whenPathChanged(observable: Observable) {
-            v = Calculator(planetModel)
+            planetModel.recalculateValues()
             with (orbit.elements[0] as MoveTo) {
-                x = v.x
-                y = v.y
+                x = planetModel.x
+                y = planetModel.y
             }
+            val a = planetModel.a
             with (orbit.elements[1] as ArcTo) {
-                radiusX = v.a
-                radiusY = v.b
-                xAxisRotation = v.alpha / PI * 180.0
-                x = 1.0 + v.x
-                y = v.y
+                radiusX = a
+                radiusY = planetModel.b
+                xAxisRotation = planetModel.angle / PI * 180.0
+                x = 1.0 + planetModel.x
+                y = planetModel.y
             }
             with (transition) {
                 stop()
                 val time = planetModel.position
-                duration = (sqrt(v.a*v.a*v.a)/frequency).seconds
-                interpolator = KeplerInterpolator(v, planetModel.positionProperty)
+                duration = (sqrt(a*a*a)/frequency).seconds
+                interpolator = KeplerInterpolator(planetModel)
                 playFrom((time * duration.toMillis()).millis)
                 if (pause) pause()
             }
@@ -121,9 +124,10 @@ class PlanetarySystem: Fragment() {
         val frequencyListener = InvalidationListener { _ ->
             with (transition) {
                 stop()
+                val a = planetModel.a
                 val time = planetModel.position
-                duration = (sqrt(v.a*v.a*v.a)/frequency).seconds
-                interpolator = KeplerInterpolator(v, planetModel.positionProperty)
+                duration = (sqrt(a*a*a)/frequency).seconds
+                interpolator = KeplerInterpolator(planetModel)
                 playFrom((time * duration.toMillis()).millis)
                 if (pause) pause()
             }
@@ -139,7 +143,7 @@ class PlanetarySystem: Fragment() {
                     val cycles = it / transition.duration.toSeconds() +
                             planetModel.position
                     val time = if (cycles < 0) 1.0 - (-cycles % 1.0) else cycles % 1.0
-                    interpolator = KeplerInterpolator(v, planetModel.positionProperty)
+                    interpolator = KeplerInterpolator(planetModel)
                     playFrom((time * duration.toMillis()).millis)
                     if(pause) pause()
                 }
