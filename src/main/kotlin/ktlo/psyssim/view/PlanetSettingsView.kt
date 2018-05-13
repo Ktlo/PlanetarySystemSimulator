@@ -44,7 +44,8 @@ class PlanetSettingsView : View() {
             pictureView.image = picture.image
             eField.text = e.toString()
             cField.text = focus.toString()
-            updateAB()
+            aField.text = a.toString()
+            bField.text = b.toString()
             angleField.text = angle.toString()
             massField.text = mass.toString()
             wField.text = w.toString()
@@ -93,55 +94,56 @@ class PlanetSettingsView : View() {
         return false
     }
 
-    private fun updateAB() {
+    private fun updateEC() {
         val selected = selectedPlanet!!
-        val e = selected.e
-        val c = selected.focus
-        val a = c / e
-        val b = sqrt(a * a - c * c)
-        aField.text = a.toString()
-        bField.text = b.toString()
+        eField.text = selected.e.toString()
+        cField.text = selected.focus.toString()
     }
 
     @UIMethod
-    fun onNewE() {
+    fun onNewA() {
         val selected = selectedPlanet!!
-        val result = selected.eProperty.update(eField.textProperty()) {
-            it in .001..0.9999
+        val result = selected.aProperty.update(aField.textProperty()) {
+            it >= selected.b
         }
         if (result)
-            updateAB()
+            updateEC()
     }
 
     @UIMethod
-    fun onNewC() {
-        selectedPlanet!!.focusProperty.update(cField.textProperty()) {
-            it > .001
+    fun onNewB() {
+        val selected = selectedPlanet!!
+        val result = selected.bProperty.update(bField.textProperty()) {
+            it in .0..selected.a
         }
+        if (result)
+            updateEC()
     }
 
     @UIMethod
-    fun onNewAB() {
+    fun onNewEC() {
+        val selected = selectedPlanet!!
         try {
-            val a = aField.text.toDouble()
-            val b = bField.text.toDouble()
-            assert(a > 0 && b > 0 && a > b)
-            val c = sqrt(a*a - b*b)
-            val e = c / a
-            cField.text = c.toString()
-            eField.text = e.toString()
-            with (selectedPlanet!!) {
-                this.e = e
-                focus = c
-            }
-        } catch (exception: Exception) {
-            val e = selectedPlanet!!.e
-            val c = selectedPlanet!!.focus
-            val a = c / e
-            val b = sqrt(a * a - c * c)
+            val e = eField.text.toDouble()
+            val c = cField.text.toDouble()
+            assert(e > .0001 && c > 0.0001)
+            val a = c/e
+            val b = sqrt(a*a - c*c)
             aField.text = a.toString()
             bField.text = b.toString()
+            selected.a = a
+            selected.b = b
+        } catch (exception: Exception) {
+            eField.text = selected.e.toString()
+            cField.text = selected.focus.toString()
         }
+    }
+
+    @UIMethod
+    fun onECSelection() {
+        val disabled = with(selectedPlanet ?: return) { e == .0 || focus == .0 }
+        eField.isDisable = disabled
+        cField.isDisable = disabled
     }
 
     @UIMethod

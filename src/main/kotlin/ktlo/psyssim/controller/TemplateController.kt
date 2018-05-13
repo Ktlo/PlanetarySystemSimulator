@@ -13,8 +13,8 @@ class TemplateController: Controller() {
 
     fun real() = PSSettings().apply {
         star {
-            val scaleMass = 1.0
-            val scaleFocus = 15.0
+            val scaleMass = .75
+            val scaleFocus = 10.0
 
             name("sun-star")
             picture(SolarSystem.Sun)

@@ -26,7 +26,7 @@
                 <Line endX="100.0" startX="-100.0" />
                 <TabPane prefHeight="137.0" prefWidth="202.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
-                        <Tab text="%settings.variant1">
+                        <Tab closable="false" onSelectionChanged="#onECSelection" text="%settings.variant1">
                             <content>
                                 <VBox spacing="5.0">
                                     <children>
@@ -41,21 +41,21 @@
                                 <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                                     <children>
                                         <Label text="%prompt.epsilon" />
-                                        <TextField fx:id="eField" onAction="#onNewE" promptText="%prompt.epsilon" />
+                                        <TextField fx:id="eField" onAction="#onNewEC" promptText="%prompt.epsilon" />
                                         <Label text="%prompt.focus" />
-                                        <TextField fx:id="cField" onAction="#onNewC" promptText="%prompt.focus" />
+                                        <TextField fx:id="cField" onAction="#onNewEC" promptText="%prompt.focus" />
                                     </children>
                                 </VBox>
                             </content>
                         </Tab>
-                        <Tab text="%settings.variant2">
+                        <Tab closable="false" text="%settings.variant2">
                             <content>
                                 <VBox prefHeight="95.0" prefWidth="202.0" spacing="5.0">
                                     <children>
                                         <Label text="%prompt.a" />
-                                        <TextField fx:id="aField" onAction="#onNewAB" promptText="%prompt.a" />
+                                        <TextField fx:id="aField" onAction="#onNewA" promptText="%prompt.a" />
                                         <Label text="%prompt.b" />
-                                        <TextField fx:id="bField" onAction="#onNewAB" promptText="%prompt.b" />
+                                        <TextField fx:id="bField" onAction="#onNewB" promptText="%prompt.b" />
                                     </children>
                                 </VBox>
                             </content>

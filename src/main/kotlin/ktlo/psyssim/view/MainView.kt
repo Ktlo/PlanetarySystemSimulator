@@ -20,12 +20,22 @@ class MainView: View("Planetary System Simulator") {
 
     val graphicalLook: BorderPane by fxid()
     private val frequencySlider: Slider by fxid()
+    private val scaleSlider: Slider by fxid()
     private val jumpField: TextField by fxid()
     private val pauseToggle: ToggleButton by fxid()
 
     init {
         frequencySlider.valueProperty().addListener { _, _, newValue ->
             planetarySystem.frequency = newValue.toDouble()
+        }
+
+        val maxScale = scaleSlider.value
+        scaleSlider.valueProperty().addListener { _, _, newValue ->
+            with (planetarySystem.root) {
+                val scale = newValue.toDouble()/maxScale
+                scaleX = scale
+                scaleY = scale
+            }
         }
 
         planetarySystem.onSelection {
@@ -71,10 +81,14 @@ class MainView: View("Planetary System Simulator") {
     @UIMethod
     fun closePS() {
         planetarySystem.star = PSSettings.empty.star
-        primaryStage.isResizable = false
         primaryStage.width = 600.0
-        primaryStage.height = 400.0
+        primaryStage.height = 416.0
         replaceWith(StartMenuView::class, ViewTransition.Fade(1.seconds))
+    }
+
+    @UIMethod
+    fun export() {
+        controller.export()
     }
 
 }

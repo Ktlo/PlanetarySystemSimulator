@@ -12,6 +12,8 @@ import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+import tornadofx.getValue
+import tornadofx.setValue
 
 class AstronomicalObject: JsonModel {
     val nameProperty = SimpleStringProperty()
@@ -20,11 +22,11 @@ class AstronomicalObject: JsonModel {
     val massProperty = SimpleDoubleProperty()
     var mass by massProperty
 
-    val focusProperty = SimpleDoubleProperty()
-    var focus by focusProperty
+    val aProperty = SimpleDoubleProperty()
+    var a by aProperty
 
-    val eProperty = SimpleDoubleProperty()
-    var e by eProperty
+    val bProperty = SimpleDoubleProperty()
+    var b by bProperty
 
     val angleProperty = SimpleDoubleProperty()
     var angle by angleProperty
@@ -36,9 +38,9 @@ class AstronomicalObject: JsonModel {
     var position by positionProperty
 
     val pictureProperty = SimpleObjectProperty<PlanetPicture>()
-    var picture by pictureProperty
+    var picture: PlanetPicture by pictureProperty
 
-    val children = FXCollections.observableArrayList<AstronomicalObject>()
+    val children = FXCollections.observableArrayList<AstronomicalObject>()!!
 
     var parent: AstronomicalObject? = null
 
@@ -46,14 +48,14 @@ class AstronomicalObject: JsonModel {
     var associatedOrbit: Path? = null
 
     var beta = .0
-    var a = .0
-    var b = .0
+    var focus = .0
+    var e = .0
     var x = .0
     var y = .0
 
     fun recalculateValues() {
-        a = focus / e
-        b = sqrt(a * a - focus * focus)
+        focus = sqrt(a*a - b*b)
+        e = focus / a
         val sinA = sin(angle)
         val cosA = cos(angle)
         val offX = focus * cosA
@@ -69,29 +71,37 @@ class AstronomicalObject: JsonModel {
 
     override fun updateModel(json: JsonObject) {
         with (json) {
-            name = string("name")
-            mass = double("mass")!!
-            focus = double("focus")!!
-            e = double("e")!!
-            angle = double("angle")!!
-            w = double("w")!!
+            name = string("name") ?: ""
+            mass = double("mass") ?: 19.5
+            if ("focus" in json && "e" in json) {
+                val c = double("focus")!!
+                val e = double("e")!!
+                a = c / e
+                b = sqrt(a*a - c*c)
+            }
+            else {
+                a = double("a") ?: 50.0
+                b = double("b") ?: 50.0
+            }
+            angle = double("angle") ?: .0
+            w = double("w") ?: .0
             position = double("way") ?: .0
-            picture = if (contains("picture"))
+            picture = if ("picture" in json)
                 PlanetPicture.fromModel(getJsonObject("picture"))
             else
                 PlanetPicture.ColorPlanetPicture()
-            if (contains("children"))
+            if ("children" in json)
                 children.setAll(getJsonArray("children").toModel())
-            children.forEach { it.parent = this@AstronomicalObject }
         }
+        children.forEach { it.parent = this }
     }
 
     override fun toJSON(json: JsonBuilder) {
         with (json) {
             add("name", name)
             add("mass", mass)
-            add("focus", focus)
-            add("e", e)
+            add("a", a)
+            add("b", b)
             add("angle", angle)
             add("w", w)
             add("way", position)
@@ -102,21 +112,35 @@ class AstronomicalObject: JsonModel {
 
     inline fun planet(lambda: AstronomicalObject.()->Unit): AstronomicalObject {
         val planet = AstronomicalObject().apply(lambda)
+        val c = planet.focus
+        val a = c/planet.e
+        planet.a = a
+        planet.b = sqrt(a*a - c*c)
         planet.parent = this
         children += planet
         return planet
     }
 
     fun picture(resource: SolarSystem) {
+        deleteOldImage()
         picture = PlanetPicture.ImagePlanetPicture(resource)
     }
 
     fun color(value: String) {
+        deleteOldImage()
         picture = PlanetPicture.ColorPlanetPicture().apply { colorString = value }
     }
 
     fun picture(imageFile: String) {
+        deleteOldImage()
         picture = PlanetPicture.ImagePlanetPicture().apply { uri = imageFile }
+    }
+
+    private fun deleteOldImage() {
+        val pic = picture
+        if (pic is PlanetPicture.ImagePlanetPicture) {
+            pic.uri = ""
+        }
     }
 
 }

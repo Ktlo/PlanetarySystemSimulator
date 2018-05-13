@@ -7,30 +7,38 @@ import javafx.scene.control.TextInputDialog
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.stage.FileChooser
+import ktlo.psyssim.UnclosableOutputStream
 import ktlo.psyssim.model.AstronomicalObject
 import ktlo.psyssim.model.PSSettings
 import ktlo.psyssim.model.PlanetPicture
 import ktlo.psyssim.model.SolarSystem
+import ktlo.psyssim.pipe
 import ktlo.psyssim.view.MainView
 import ktlo.psyssim.view.PlanetSettingsView
+import ktlo.psyssim.view.StartMenuView
 import tornadofx.*
 import java.io.File
 import java.io.FileFilter
 import java.time.LocalDateTime
 import java.util.*
 import java.util.function.UnaryOperator
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 class MainController: Controller() {
     val mainView: MainView by inject()
+    private val startMenuView: StartMenuView by inject()
     private val planetSettingsView: PlanetSettingsView by inject()
 
     lateinit var settings: PSSettings
 
+    val protocol = "psyssim:"
     private val userHome = File(System.getProperty("user.home"))
     private val dataDirectory = File(userHome,
             (if (System.getProperty("os.name").contains("windows", true))
                 "/AppData/Roaming/" else "") + ".psyssim/")
-    private val contentDirectory = File(dataDirectory, "content/")
+    val contentDirectory = File(dataDirectory, "content/")
     val savesDirectory = File(dataDirectory, "saves/")
 
     val programName = messages["program.name"]
@@ -70,20 +78,14 @@ class MainController: Controller() {
         }
         val selected = chooser.showOpenDialog(mainView.currentWindow)
         if (selected != null) {
-            val imageFile = File(contentDirectory, UUID.randomUUID().toString())
+            val id = UUID.randomUUID().toString()
+            var imageFile: File
+            do {
+                imageFile = File(contentDirectory, id)
+            } while (imageFile.exists())
             selected.copyTo(imageFile)
-            val uri = "file:" + imageFile.absolutePath
-            val picture = Image(uri, 256.0, 256.0, false, false)
-            with (planetSettingsView.pictureView) {
-                image = picture
-            }
-            val oldPicture = planet.picture
-            if (oldPicture is PlanetPicture.ImagePlanetPicture) {
-                val p = oldPicture.uri
-                if (p.startsWith("file:${contentDirectory.absolutePath}"))
-                    File(p.substring(5)).delete()
-            }
-            planet.picture(uri)
+            planet.picture("$protocol$id")
+            planetSettingsView.pictureView.image = planet.picture.image
         }
     }
 
@@ -97,11 +99,82 @@ class MainController: Controller() {
     fun recursivelyDeleteImages(model: AstronomicalObject) {
         val picture = model.picture
         if (picture is PlanetPicture.ImagePlanetPicture) {
-            val path = picture.uri
-            if (path.startsWith("file:${contentDirectory.absolutePath}"))
-                File(path.substring(5)).delete()
+            picture.uri = ""
         }
         model.children.forEach { recursivelyDeleteImages(it) }
+    }
+
+    fun export() {
+        val chooser = FileChooser().apply {
+            initialDirectory = userHome
+            val extension = FileChooser.ExtensionFilter("Planetary System", "*.pss")
+            extensionFilters.addAll(extension)
+            selectedExtensionFilter = extension
+            title = messages["exportDialog"]
+        }
+        val outputFile = chooser.showSaveDialog(mainView.currentWindow) ?: return
+        try {
+            val output = ZipOutputStream(outputFile.outputStream())
+            output.putNextEntry(ZipEntry("${settings.name}.json"))
+            settings.save(UnclosableOutputStream(output))
+            output.closeEntry()
+            recursivelyPutImages(settings.star, output)
+            output.close()
+        } catch (e: Exception) {
+            e.printStackTrace(System.err)
+            alert(Alert.AlertType.ERROR, messages["exportError.header"], e.localizedMessage, title = programName)
+        }
+    }
+
+    fun import() {
+        val chooser = FileChooser().apply {
+            initialDirectory = userHome
+            val extension = FileChooser.ExtensionFilter("Planetary System", "*.pss")
+            extensionFilters.addAll(extension)
+            selectedExtensionFilter = extension
+            title = messages["exportDialog"]
+        }
+        val inputFile = chooser.showOpenDialog(startMenuView.currentWindow) ?: return
+        try {
+            val input = ZipInputStream(inputFile.inputStream())
+            var entry = input.nextEntry
+            while (entry != null) {
+                if (!entry.isDirectory) {
+                    val filename = entry.name
+                    val parentDirectory =
+                    if (filename.endsWith(".json"))
+                        savesDirectory
+                    else
+                        contentDirectory
+                    val output = File(parentDirectory, filename).outputStream()
+                    output.pipe(input)
+                    output.close()
+                }
+                input.closeEntry()
+                entry = input.nextEntry
+            }
+            alert(Alert.AlertType.INFORMATION, messages["importSuccess.header"], messages["importSuccess.message"],
+                    title = programName)
+        } catch (e: Exception) {
+            e.printStackTrace(System.err)
+            alert(Alert.AlertType.ERROR, messages["importError.header"], e.localizedMessage, title = programName)
+        }
+    }
+
+    private fun recursivelyPutImages(planet: AstronomicalObject, output: ZipOutputStream) {
+        val pic = planet.picture
+        if (pic is PlanetPicture.ImagePlanetPicture) {
+            val uri = pic.uri
+            if (uri.startsWith(protocol)) {
+                val fileName = uri.substring(protocol.length)
+                output.putNextEntry(ZipEntry(fileName))
+                val input = File(contentDirectory, fileName).inputStream()
+                output.pipe(input)
+                input.close()
+                output.closeEntry()
+            }
+        }
+        planet.children.forEach { recursivelyPutImages(it, output) }
     }
 
     fun createFromTemplate(template: PSSettings, view: View? = null) {

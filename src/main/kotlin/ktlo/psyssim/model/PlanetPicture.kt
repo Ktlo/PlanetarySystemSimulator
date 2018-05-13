@@ -7,14 +7,17 @@ import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 import javafx.scene.paint.ImagePattern
 import javafx.scene.paint.Paint
+import ktlo.psyssim.controller.MainController
 import ktlo.psyssim.printErr
 import tornadofx.*
+import java.io.File
 import javax.json.JsonObject
 import kotlin.math.sqrt
 
 sealed class PlanetPicture: JsonModel {
 
     class ImagePlanetPicture(): PlanetPicture() {
+        private val controller = find(MainController::class)
         private var path: String = ""
         private lateinit var picture: Image
 
@@ -26,9 +29,25 @@ sealed class PlanetPicture: JsonModel {
         var uri: String
         get() = path
         set(value) {
-            path = value
-            picture = Image(value, 256.0, 256.0, false, false)
-            fill = ImagePattern(picture)
+            try {
+                val protocol = controller.protocol
+                if (path.startsWith(protocol, true)) {
+                    File(controller.contentDirectory, path.substring(protocol.length)).delete()
+                }
+                path = value
+                if (value.isBlank())
+                    return
+                picture = if (value.startsWith(protocol, true)) {
+                    val file = File(controller.contentDirectory, value.substring(protocol.length)).absolutePath
+                    Image("file:$file", 256.0, 256.0, false, false)
+                } else
+                    Image(value, 256.0, 256.0, false, false)
+                fill = ImagePattern(picture)
+            } catch (e: Exception) {
+                picture = SolarSystem.Planet.image
+                path = SolarSystem.Planet.uri
+                fill = ImagePattern(picture)
+            }
         }
 
         constructor(planet: SolarSystem) : this() {

@@ -72,7 +72,9 @@ class PlanetarySystem: Fragment() {
             arcTo(planetModel.a, planetModel.b, planetModel.angle / PI * 180.0, 1 + planetModel.x, planetModel.y, true)
             closepath()
             stroke = Color.DODGERBLUE
-            strokeDashArray.setAll(5.0, 5.0)
+            val scale = 1.0/root.scaleX
+            strokeWidth = scale
+            strokeDashArray.setAll(5.0*scale, 5.0*scale)
         }
         planetModel.associatedOrbit = orbit
 
@@ -133,9 +135,15 @@ class PlanetarySystem: Fragment() {
             }
         }
         frequencyProperty.addListener(frequencyListener)
+        root.scaleXProperty().addListener { _, _, newValue ->
+            val scale = 1.0/newValue.toDouble()
+            orbit.strokeWidth = scale
+            orbit.strokeDashArray[0] = 5.0*scale
+            orbit.strokeDashArray[1] = 5.0*scale
+        }
         with (planetModel) {
-            focusProperty.addListener(::whenPathChanged)
-            eProperty.addListener(::whenPathChanged)
+            aProperty.addListener(::whenPathChanged)
+            bProperty.addListener(::whenPathChanged)
             angleProperty.addListener(::whenPathChanged)
             fun whenJump(it: Double) {
                 with (transition) {

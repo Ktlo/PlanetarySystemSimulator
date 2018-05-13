@@ -49,10 +49,14 @@ class StartMenuView: View() {
         }
     }
 
+    @UIMethod
+    fun whenImportPS() {
+        controller.import()
+    }
+
     init {
         title = controller.programName
         primaryStage.icons.add(SolarSystem.Sun.image)
-        primaryStage.isResizable = false
         logoAnimation += logoView
     }
 

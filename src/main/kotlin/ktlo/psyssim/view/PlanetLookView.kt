@@ -69,6 +69,7 @@ class PlanetLookView: Fragment() {
                 }
             }
             tab(messages["toggle.library"]) {
+                isClosable = false
                 vbox(10, Pos.TOP_CENTER) {
                     hbox(5, Pos.CENTER) {
                         variants = combobox(values = SolarSystem.values().toList()) {

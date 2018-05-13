@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.Line?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="850.0" stylesheets="@../content/styles.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="850.0" style="-fx-background-color: rgba(0,0,0);" stylesheets="@../content/styles.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <BorderPane fx:id="graphicalLook">
          <center>
@@ -37,6 +37,13 @@
                </padding>
             </HBox>
          </bottom>
+         <right>
+            <Slider id="scaleSlider" fx:id="scaleSlider" max="1000000.0" min="100.0" orientation="VERTICAL" value="160000.0" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
+            </Slider>
+         </right>
       </BorderPane>
    </center>
    <top>
@@ -47,6 +54,7 @@
                   <MenuItem mnemonicParsing="false" onAction="#save" text="%bar.save" />
                   <MenuItem mnemonicParsing="false" onAction="#saveAs" text="%bar.saveAs" />
               <MenuItem mnemonicParsing="false" onAction="#closePS" text="%bar.close" />
+                  <MenuItem mnemonicParsing="false" onAction="#export" text="%bar.export" />
             </items>
           </Menu>
         </menus>
