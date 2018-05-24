@@ -9,7 +9,7 @@ import ktlo.psyssim.controller.MainController
 import ktlo.psyssim.model.Template
 import tornadofx.*
 
-class LoadTemplateView: Fragment() {
+class LoadTemplateFragment: Fragment() {
     val controller: MainController by inject()
 
     var comboBox: ComboBox<Template> by singleAssign()

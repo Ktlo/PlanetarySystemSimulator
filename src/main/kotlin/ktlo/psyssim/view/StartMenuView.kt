@@ -1,6 +1,5 @@
 package ktlo.psyssim.view
 
-import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
 import javafx.stage.StageStyle
@@ -10,7 +9,6 @@ import ktlo.psyssim.controller.TemplateController
 import ktlo.psyssim.model.PSSettings
 import ktlo.psyssim.model.SolarSystem
 import tornadofx.*
-import kotlin.math.PI
 
 class StartMenuView: View() {
     private val controller: MainController by inject()
@@ -42,7 +40,7 @@ class StartMenuView: View() {
 
     @UIMethod
     fun whenTemplatePS() {
-        val templateView = find(LoadTemplateView::class)
+        val templateView = find(LoadTemplateFragment::class)
         templateView.openModal(StageStyle.UTILITY, resizable = false, block = true)
         if (templateView.result) {
             controller.createFromTemplate(templateView.selected.settings, this)
