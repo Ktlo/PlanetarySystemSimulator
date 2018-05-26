@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
-<ScrollPane stylesheets="@../content/styles.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<ScrollPane stylesheets="@../content/styles.css" xmlns:fx="http://javafx.com/fxml/1">
     <content>
         <VBox alignment="TOP_CENTER" spacing="5.0">
             <children>

@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane stylesheets="@../content/styles.css" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane stylesheets="@../content/styles.css" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane prefHeight="200.0" prefWidth="200.0" styleClass="background-pane" />
       <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">

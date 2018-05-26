@@ -3,7 +3,6 @@ package ktlo.psyssim.view
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Pos
 import javafx.scene.control.ComboBox
-import javafx.scene.control.Label
 import javafx.scene.control.TextArea
 import ktlo.psyssim.controller.MainController
 import ktlo.psyssim.model.Template
